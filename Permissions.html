@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="stylesheet" type="text/css" href="styles/inline.css">
+<style>
+  body {
+  background: #555;
+}
+
+.content {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+}
+</style>
+</head>
+<body>
+  <div class="content">
+    <div>
+        <p>
+          <b><a href="/geolocation.html">Geolocation</a></b> permission status is <b id="geolocation-status">unknown</b>.
+          
+          <button onclick="requestGeolocation()">Request</button>
+        </p>
+        <p>
+          <b><a href="/local-notifications.html">Notifications</a></b> permission status is <b id="notifications-status">unknown</b>.
+          
+          <button onclick="requestNotifications()">Request</button>
+        </p>
+        <p>
+          <b><a href="/push-notifications.html">Push</a></b> permission status is <b id="push-status">unknown</b>.
+          
+          <button onclick="requestPush()">Request</button>
+        </p>
+        <p>
+          <b>Midi</b> permission status is <b id="midi-status">unknown</b>.
+          
+          <button onclick="requestMidi()">Request</button>
+        </p>
+        <p>
+          <b><a href="/camera-microphone.html">Camera</a></b> permission status is <b id="camera-status">unknown</b>.
+          
+          <button onclick="requestCamera()">Request</button>
+        </p>
+        <p>
+          <b><a href="/camera-microphone.html">Microphone</a></b> permission status is <b id="microphone-status">unknown</b>.
+          
+          <button onclick="requestMicrophone()">Request</button>
+        </p>
+        <p>
+          <b><a href="/background-sync.html">Background Sync</a></b> permission status is <b id="background-sync-status">unknown</b>.
+        </p>
+        <p>
+          <b><a href="/ambient-light.html">Ambient Light Sensor</a></b> permission status is <b id="ambient-light-sensor-status">unknown</b>.
+        </p>
+        <p>
+          <b><a href="/device-motion.html">Accelerometer</a></b> permission status is <b id="accelerometer-status">unknown</b>.
+        </p>
+        <p>
+          <b><a href="/device-motion.html">Gyroscope</a></b> permission status is <b id="gyroscope-status">unknown</b>.
+        </p>
+        <p>
+          <b><a href="/device-motion.html">Magnetometer</a></b> permission status is <b id="magnetometer-status">unknown</b>.
+        </p>
+      </div>
+      
+      <p id="logTarget"></p>
+      
+    <script>
+if ('permissions' in navigator) {
+  var logTarget = document.getElementById('logTarget');
+
+  function handleChange(permissionName, newState) {
+    var timeBadge = new Date().toTimeString().split(' ')[0];
+    var newStateInfo = document.createElement('p');
+    newStateInfo.innerHTML = '' + timeBadge + ' State of ' + permissionName + ' permission status changed to ' + newState + '.';
+    logTarget.appendChild(newStateInfo);
+  }
+
+  function checkPermission(permissionName, descriptor) {
+    try {
+    navigator.permissions.query(Object.assign({name: permissionName}, descriptor))
+      .then(function (permission) {
+        document.getElementById(permissionName + '-status').innerHTML = permission.state;
+        permission.addEventListener('change', function (e) {
+          document.getElementById(permissionName + '-status').innerHTML = permission.state;
+          handleChange(permissionName, permission.state);
+        });
+      });
+    } catch (e) {
+    }
+  }
+
+  checkPermission('geolocation');
+  checkPermission('notifications');
+  checkPermission('push', {userVisibleOnly: true});
+  checkPermission('midi', {sysex: true});
+  checkPermission('camera');
+  checkPermission('microphone');
+  checkPermission('background-sync');
+  checkPermission('ambient-light-sensor');
+  checkPermission('accelerometer');
+  checkPermission('gyroscope');
+  checkPermission('magnetometer');
+
+  var noop = function () {};
+  navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+  
+  function requestGeolocation() {
+    navigator.geolocation.getCurrentPosition(noop);
+  }
+
+  function requestNotifications() {
+    Notification.requestPermission();
+  }
+
+  function requestPush() {
+    navigator.serviceWorker.getRegistration()
+      .then(function (serviceWorkerRegistration) {
+        serviceWorkerRegistration.pushManager.subscribe();
+      });
+  }
+
+  function requestMidi() {
+    navigator.requestMIDIAccess({sysex: true});
+  }
+  
+  function requestCamera() {
+    navigator.getUserMedia({video: true}, noop, noop)
+  }
+  
+  function requestMicrophone() {
+    navigator.getUserMedia({audio: true}, noop, noop)
+  }
+}
+         </script>  
+
+<a href="Local_Notifications.html">Go to Local Notification</a>
+        </div>
+  <!-- Uncomment the line below when ready to test with fake data -->
+  <script src="scripts/app.js" async></script>
+
+</body>
+</html>
